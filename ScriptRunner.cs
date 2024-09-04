@@ -23,10 +23,10 @@ namespace Datus.Migrator
 
         private void CreateMigrationTableIfNeeded()
         {
-            var exists = _connection.ExecuteScalar<bool>("SELECT COUNT(*) = 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '__DatusMigration'");
+            var exists = _connection.ExecuteScalar<bool>("SELECT COUNT(*) = 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '__lockstep'");
             if (!exists) {
                 var script = @"
-                    CREATE TABLE ""__DatusMigration""
+                    CREATE TABLE ""__lockstep""
                     (
                         stamp TEXT NOT NULL PRIMARY KEY CHECK(stamp ~ '^[0-9]{14}$'),
                         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -38,7 +38,7 @@ namespace Datus.Migrator
 
         private IList<string> GetExecutedStamps()
         {
-            return _connection.Query<string>("SELECT stamp FROM \"__DatusMigration\" ORDER BY stamp").ToList();
+            return _connection.Query<string>("SELECT stamp FROM \"__lockstep\" ORDER BY stamp").ToList();
         }
 
         private IEnumerable<Script> GetScriptsInExecutionOrder()
@@ -70,7 +70,7 @@ namespace Datus.Migrator
                             var sql = script.Read();
                             Console.WriteLine($"{sql}");
                             _connection.Execute(sql);
-                            _connection.Execute("INSERT INTO \"__DatusMigration\"(stamp) SELECT @stamp", new { script.Stamp });
+                            _connection.Execute("INSERT INTO \"__lockstep\"(stamp) SELECT @stamp", new { script.Stamp });
                             Console.WriteLine($"Completed {script.FileName}:");
                             run = true;
                         } else if (run) {
@@ -82,7 +82,7 @@ namespace Datus.Migrator
                             var sql = script.Read();
                             Console.WriteLine($"{sql}");
                             _connection.Execute(sql);
-                            _connection.Execute("DELETE FROM \"__DatusMigration\" WHERE stamp = @stamp", new { script.Stamp });
+                            _connection.Execute("DELETE FROM \"__lockstep\" WHERE stamp = @stamp", new { script.Stamp });
                             Console.WriteLine($"Completed {script.FileName}:");
                             run = true;
                         } else if (run) {
