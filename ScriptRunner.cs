@@ -29,7 +29,7 @@ namespace Datus.LockStep
                     CREATE TABLE ""__lockstep""
                     (
                         stamp TEXT NOT NULL PRIMARY KEY CHECK(stamp ~ '^[0-9]{14}$'),
-                        timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                        timestamp TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
                     );
                 ";
                 _connection.Execute(script);
