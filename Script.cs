@@ -1,4 +1,4 @@
-namespace Datus.Migrator
+namespace Datus.LockStep
 {
     using System;
     using System.IO;
